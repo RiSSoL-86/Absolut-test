@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:15.2
+    restart: always
+    container_name: absolut_test_postgres
+    env_file:
+      - ./src/.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    network_mode: "host"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+
+  redis:
+    image: redis:alpine
+    container_name: absolut_test_redis
+    restart: always
+    expose:
+      - 6379
+    network_mode: "host"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+
+volumes:
+  db_data:
