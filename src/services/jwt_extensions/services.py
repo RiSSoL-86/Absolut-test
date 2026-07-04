@@ -1,17 +1,17 @@
-from typing import TYPE_CHECKING, cast, final
+from typing import TYPE_CHECKING, final
 
+from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken, Token
 
-if TYPE_CHECKING:
-    from django.contrib.auth.base_user import AbstractBaseUser
-    from django.contrib.auth.models import AnonymousUser
+from apps.users.choices import Role
 
+if TYPE_CHECKING:
     from apps.users.models import User
 
 
 @final
 class TokenService:
-    """Issue and enrich JWT tokens for any delivery layer."""
+    """Issue JWT tokens and read the claims embedded in them."""
 
     @staticmethod
     def apply_claims(token: Token, user: User) -> None:
@@ -23,10 +23,29 @@ class TokenService:
     def get_for_user(user: User) -> dict[str, str]:
         """Return an access/refresh pair carrying the user's claims."""
         refresh = RefreshToken.for_user(user)
-        TokenService.apply_claims(refresh, user)
+        TokenService.apply_claims(token=refresh, user=user)
         return {"access": str(refresh.access_token), "refresh": str(refresh)}
 
     @staticmethod
-    def get_user_id(user: AbstractBaseUser | AnonymousUser) -> int:
-        """Return the id of the authenticated ``request.user``."""
-        return cast("User", user).pk
+    def _jwt_token(token: object) -> Token:
+        if not isinstance(token, Token):
+            raise TypeError("TokenService expects a SimpleJWT token.")
+        return token
+
+    @staticmethod
+    def get_user_id(token: object) -> int:
+        """Read the user id claim (SimpleJWT stores it as a string)."""
+        jwt_token = TokenService._jwt_token(token=token)
+        return int(jwt_token[api_settings.USER_ID_CLAIM])
+
+    @staticmethod
+    def get_role(token: object) -> Role:
+        """Read the role claim embedded by ``apply_claims``."""
+        jwt_token = TokenService._jwt_token(token=token)
+        return Role(jwt_token["role"])
+
+    @staticmethod
+    def is_staff(token: object) -> bool:
+        """Read the staff (admin) claim embedded by ``apply_claims``."""
+        jwt_token = TokenService._jwt_token(token=token)
+        return bool(jwt_token["is_staff"])

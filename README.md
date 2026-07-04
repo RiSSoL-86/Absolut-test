@@ -2,6 +2,9 @@
 
 Backend service built with Django and Django REST Framework.
 
+See [docs/architecture.md](docs/architecture.md) for the data model,
+indexes and performance characteristics.
+
 ## Local Setup
 
 Create the local environment file from the example:

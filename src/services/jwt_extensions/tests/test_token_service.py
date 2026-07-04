@@ -16,7 +16,7 @@ class TestApplyClaims:
         token = RefreshToken()
         user = StaffUserFactory(role=Role.AUTHOR)
 
-        TokenService.apply_claims(token, user)
+        TokenService.apply_claims(token=token, user=user)
 
         assert token["role"] == Role.AUTHOR
         assert token["is_staff"] is True
@@ -35,7 +35,7 @@ class TestApplyClaims:
         token = RefreshToken()
         user = UserFactory(role=role, is_staff=is_staff)
 
-        TokenService.apply_claims(token, user)
+        TokenService.apply_claims(token=token, user=user)
 
         assert token["role"] == role
         assert token["is_staff"] == is_staff
@@ -45,7 +45,7 @@ class TestGetForUser:
     """``get_for_user`` returns a claim-carrying access/refresh pair."""
 
     def test_returns_access_and_refresh_strings(self) -> None:
-        pair = TokenService.get_for_user(UserFactory())
+        pair = TokenService.get_for_user(user=UserFactory())
 
         assert set(pair) == {"access", "refresh"}
         assert isinstance(pair["access"], str)
@@ -54,7 +54,7 @@ class TestGetForUser:
     def test_access_token_carries_user_and_claims(self) -> None:
         user = StaffUserFactory(role=Role.AUTHOR)
 
-        access = AccessToken(TokenService.get_for_user(user)["access"])
+        access = AccessToken(TokenService.get_for_user(user=user)["access"])
 
         # simplejwt stores the user id claim as a string.
         assert access[api_settings.USER_ID_CLAIM] == str(user.pk)
@@ -64,7 +64,7 @@ class TestGetForUser:
     def test_refresh_token_carries_claims(self) -> None:
         user = StaffUserFactory(role=Role.AUTHOR)
 
-        refresh = RefreshToken(TokenService.get_for_user(user)["refresh"])
+        refresh = RefreshToken(TokenService.get_for_user(user=user)["refresh"])
 
         assert refresh["role"] == Role.AUTHOR
         assert refresh["is_staff"] is True
@@ -73,5 +73,6 @@ class TestGetForUser:
 class TestGetUserId:
     def test_returns_primary_key(self) -> None:
         user = UserFactory()
+        access = AccessToken(TokenService.get_for_user(user=user)["access"])
 
-        assert TokenService.get_user_id(user) == user.pk
+        assert TokenService.get_user_id(token=access) == user.pk

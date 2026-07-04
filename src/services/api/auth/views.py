@@ -34,7 +34,8 @@ class SignUpView(CreateAPIView[User]):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(
-            TokenService.get_for_user(user), status=status.HTTP_201_CREATED
+            TokenService.get_for_user(user=user),
+            status=status.HTTP_201_CREATED,
         )
 
 

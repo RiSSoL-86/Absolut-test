@@ -21,7 +21,7 @@ class TestRefreshEndpoint:
         self, api_client: APIClient
     ) -> None:
         user = UserFactory(role=Role.AUTHOR)
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
 
         response = api_client.post(
             REFRESH_URL, {"refresh": refresh}, format="json"
@@ -38,7 +38,7 @@ class TestRefreshEndpoint:
         self, api_client: APIClient
     ) -> None:
         user = UserFactory()
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
 
         first = api_client.post(
             REFRESH_URL, {"refresh": refresh}, format="json"
@@ -57,7 +57,7 @@ class TestRefreshEndpoint:
         self, api_client: APIClient
     ) -> None:
         user = UserFactory()
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
         user.delete()
 
         response = api_client.post(
@@ -70,7 +70,7 @@ class TestRefreshEndpoint:
         self, api_client: APIClient
     ) -> None:
         user = UserFactory()
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
         user.is_active = False
         user.save(update_fields=["is_active"])
 
@@ -94,7 +94,7 @@ class TestRefreshSerializer:
 
     def test_returns_rotated_pair_and_reapplies_claims(self) -> None:
         user = UserFactory(role=Role.AUTHOR)
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
 
         serializer = RefreshSerializer(data={"refresh": refresh})
         assert serializer.is_valid(), serializer.errors
@@ -106,7 +106,7 @@ class TestRefreshSerializer:
 
     def test_raises_for_inactive_user(self) -> None:
         user = UserFactory()
-        refresh = TokenService.get_for_user(user)["refresh"]
+        refresh = TokenService.get_for_user(user=user)["refresh"]
         user.is_active = False
         user.save(update_fields=["is_active"])
 
