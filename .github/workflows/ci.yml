@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.2.1
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Ruff lint
+        run: poetry run ruff check src/
+
+      - name: Ruff format
+        run: poetry run ruff format --check src/
+
+      - name: Mypy
+        run: poetry run mypy src/
+
+      - name: Ensure migrations exist
+        run: poetry run python src/manage.py makemigrations --no-input --dry-run --check
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.2
+        env:
+          POSTGRES_DB: db1
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d db1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.2.1
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run pytest src/
