@@ -50,7 +50,7 @@ class TestUploadFileHandlerPath:
         second = FileUploadService.upload_file_handler_path(
             base_path="b", instance=None, filename="x.png"
         )
-        
+
         assert first != second
 
 

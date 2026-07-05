@@ -10,6 +10,7 @@ class TestUUIAbstractModel:
         assert UUIAbstractModel._meta.abstract
 
     def test_id_is_a_uuid7_primary_key(self) -> None:
+        field = UUIAbstractModel._meta.get_field("id")
 
         assert isinstance(field, models.UUIDField)
         assert field.primary_key
