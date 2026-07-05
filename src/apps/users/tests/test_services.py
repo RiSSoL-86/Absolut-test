@@ -36,7 +36,6 @@ class TestListAll:
 
     def test_is_ordered_by_id(self) -> None:
         UserFactory.create_batch(5)
-
         ids = [user.id for user in UserService.get_all()]
 
         assert ids == sorted(ids)
