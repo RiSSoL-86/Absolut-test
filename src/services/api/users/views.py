@@ -21,8 +21,9 @@ class MeView(RetrieveUpdateAPIView[User]):
 
     @override
     def get_object(self) -> User:
-        user_id = TokenService.get_user_id(self.request.user)
-        user = UserService.get_active(user_id)
+        token = self.request.auth
+        user_id = TokenService.get_user_id(token=token)
+        user = UserService.get_active(user_id=user_id)
         if user is None:
             raise NotFound("User no longer exists.")
         return user
@@ -37,4 +38,4 @@ class UserListView(ListAPIView[User]):
 
     @override
     def get_queryset(self) -> QuerySet[User]:
-        return UserService.list_all()
+        return UserService.get_all()

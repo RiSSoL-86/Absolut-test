@@ -1,3 +1,5 @@
+from typing import final
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group
@@ -6,7 +8,10 @@ from django.utils.translation import gettext_lazy as _
 from apps.users.models import User
 
 
+@final
 class UserAdmin(DjangoUserAdmin):  # type: ignore[type-arg]
+    """Admin for the custom email-based user."""
+
     list_display = (
         "id",
         "email",

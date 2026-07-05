@@ -17,11 +17,7 @@ app.autodiscover_tasks()
 
 
 def discover_celery_tasks() -> None:
-    """
-    Custom function to discover and import all task modules
-    from services.celery_tasks
-    This replaces the autodiscover_tasks approach for custom folder structures.
-    """
+    """Discover and import all task modules from services.celery_tasks."""
     try:
         # Import the celery_tasks package
         celery_tasks_package = importlib.import_module("services.celery_tasks")

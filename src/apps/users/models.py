@@ -1,3 +1,5 @@
+from typing import final
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.functions import Lower
@@ -7,6 +9,7 @@ from apps.users.choices import Role
 from apps.users.managers import UserManager
 
 
+@final
 class User(AbstractUser):
     username = None  # type: ignore[assignment]
 

@@ -35,7 +35,13 @@ class SignUpSerializer(serializers.ModelSerializer[User]):
 
     @override
     def create(self, validated_data: dict[str, Any]) -> User:
-        return User.objects.create_user(**validated_data)
+        return UserService.create(
+            email=validated_data["email"],
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            password=validated_data["password"],
+            role=validated_data["role"],
+        )
 
 
 @final
@@ -46,7 +52,7 @@ class SignInSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user: AuthUser) -> Token:
         token = super().get_token(user)
-        TokenService.apply_claims(token, cast("User", user))
+        TokenService.apply_claims(token=token, user=cast("User", user))
         return token
 
 
@@ -57,10 +63,12 @@ class RefreshSerializer(TokenRefreshSerializer):
     @override
     def validate(self, attrs: dict[str, Any]) -> dict[str, str]:
         refresh = RefreshToken(attrs["refresh"])
-        user = UserService.get_active(refresh[api_settings.USER_ID_CLAIM])
+        user = UserService.get_active(
+            user_id=refresh[api_settings.USER_ID_CLAIM]
+        )
         if user is None:
             raise AuthenticationFailed("User is inactive or removed.")
-        TokenService.apply_claims(refresh, user)
+        TokenService.apply_claims(token=refresh, user=user)
 
         data = {"access": str(refresh.access_token)}
         refresh.set_jti()

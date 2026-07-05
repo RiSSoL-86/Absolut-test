@@ -5,10 +5,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UUIAbstractModel(models.Model):
-    """Use a UUID primary key instead of Django's default BigInteger."""
+    """Time-ordered UUIDv7 primary key: unguessable yet index-friendly."""
 
     id = models.UUIDField(
-        _("ID"), editable=False, default=uuid.uuid4, primary_key=True
+        _("ID"), editable=False, default=uuid.uuid7, primary_key=True
     )
 
     class Meta:

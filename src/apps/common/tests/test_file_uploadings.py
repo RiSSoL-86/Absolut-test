@@ -13,21 +13,21 @@ def _assert_is_uuid(value: str) -> None:
 class TestUploadFileHandlerPath:
     def test_stores_file_under_the_base_path(self) -> None:
         result = FileUploadService.upload_file_handler_path(
-            "user/avatars", None, "photo.png"
+            base_path="user/avatars", instance=None, filename="photo.png"
         )
 
         assert os.path.dirname(result) == "user/avatars"
 
     def test_keeps_the_original_extension(self) -> None:
         result = FileUploadService.upload_file_handler_path(
-            "base", None, "photo.PNG"
+            base_path="base", instance=None, filename="photo.PNG"
         )
 
         assert result.endswith(".PNG")
 
     def test_replaces_the_original_name_with_a_uuid(self) -> None:
         result = FileUploadService.upload_file_handler_path(
-            "base", None, "secret-report.png"
+            base_path="base", instance=None, filename="secret-report.png"
         )
 
         stem, _ = os.path.splitext(os.path.basename(result))
@@ -36,7 +36,7 @@ class TestUploadFileHandlerPath:
 
     def test_no_extension_when_the_source_has_none(self) -> None:
         result = FileUploadService.upload_file_handler_path(
-            "base", None, "extensionless"
+            base_path="base", instance=None, filename="extensionless"
         )
 
         name = os.path.basename(result)
@@ -44,20 +44,24 @@ class TestUploadFileHandlerPath:
         _assert_is_uuid(name)
 
     def test_generates_a_unique_name_on_every_call(self) -> None:
-        first = FileUploadService.upload_file_handler_path("b", None, "x.png")
-        second = FileUploadService.upload_file_handler_path("b", None, "x.png")
+        first = FileUploadService.upload_file_handler_path(
+            base_path="b", instance=None, filename="x.png"
+        )
+        second = FileUploadService.upload_file_handler_path(
+            base_path="b", instance=None, filename="x.png"
+        )
 
         assert first != second
 
 
 class TestPrefixBasedUploadHandler:
     def test_returns_a_partial_bound_to_the_prefix(self) -> None:
-        handler = FileUploadService.prefix_based_upload_handler("docs")
+        handler = FileUploadService.prefix_based_upload_handler(path="docs")
 
         assert isinstance(handler, functools.partial)
 
     def test_partial_builds_a_path_under_the_prefix(self) -> None:
-        handler = FileUploadService.prefix_based_upload_handler("docs")
+        handler = FileUploadService.prefix_based_upload_handler(path="docs")
 
         # Django calls the handler as ``upload_to(instance, filename)``.
         result = handler(None, "manual.pdf")

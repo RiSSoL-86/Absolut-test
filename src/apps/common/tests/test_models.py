@@ -9,12 +9,12 @@ class TestUUIAbstractModel:
     def test_is_abstract(self) -> None:
         assert UUIAbstractModel._meta.abstract
 
-    def test_id_is_a_uuid_primary_key(self) -> None:
+    def test_id_is_a_uuid7_primary_key(self) -> None:
         field = UUIAbstractModel._meta.get_field("id")
 
         assert isinstance(field, models.UUIDField)
         assert field.primary_key
-        assert field.default is uuid.uuid4
+        assert field.default is uuid.uuid7
         assert field.editable is False
 
 
